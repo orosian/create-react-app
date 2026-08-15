@@ -1,5 +1,5 @@
 {
-  "name": "@orosian/create-react-app",
+  "name": "@orosian/create-app",
   "version": "0.0.1",
   "private": false,
   "type": "module",

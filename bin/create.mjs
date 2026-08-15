@@ -1,10 +1,17 @@
 #!/usr/bin/env node
 
-import { cpSync, existsSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const SKIP = new Set(['node_modules', 'dist', '.git', 'bin'])
+const SKIP = new Set(['node_modules', 'dist', '.git', 'bin', '.claude'])
 
 const name = process.argv[2]
 
@@ -50,9 +57,13 @@ delete pkg.publishConfig
 delete pkg.repository
 writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`)
 
-const claudeSkills = join(dest, '.claude', 'skills')
-rmSync(claudeSkills, { recursive: true, force: true })
-symlinkSync('../.agents/skills', claudeSkills)
+if (!existsSync(join(dest, '.agents', 'skills'))) {
+  console.error('模版缺少 .agents/skills，无法创建 Claude Code 技能链接')
+  process.exit(1)
+}
+
+mkdirSync(join(dest, '.claude'), { recursive: true })
+symlinkSync('../.agents/skills', join(dest, '.claude', 'skills'))
 
 writeFileSync(
   join(dest, 'README.md'),
